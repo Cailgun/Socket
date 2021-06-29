@@ -37,7 +37,7 @@ std::string MServer::read()
 	if (_clientSocket == 0)
 		return ret;
 
-	char cache[1500] = { 0 };
+	char cache[1500];
 	recv(_clientSocket, cache, 1500, 0);
 	ret = cache;
 	return ret;

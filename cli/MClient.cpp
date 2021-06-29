@@ -22,10 +22,9 @@ SOCKET MClient::createClientSocket()
 {
 	SOCKET ret;
 	int length = sizeof(_serverAddr);
-	std::cout << "开始连接服务端" << std::endl;
 	ret = connect(_clientSocket, (sockaddr*)&_serverAddr, length);
 	if (ret != -1)
-		std::cout << "服务器已连接:" << _serverAddr.sin_addr.s_addr <<std::endl;
+		std::cout << "已连接:" << _serverAddr.sin_addr.s_addr <<std::endl;
 	return ret;
 }
 
