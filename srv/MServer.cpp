@@ -111,7 +111,6 @@ std::string MServer::readFromClient(SOCKET clientSocket)
 		closesocket(clientSocket);
 		FD_CLR(clientSocket, &_sockets);
 		std::cout << std::endl << "客户端已退出:" << ip << std::endl;
-
 	}
 
 	return ret;
@@ -124,7 +123,6 @@ void MServer::writeToClient(std::string data, int index)
 
 	auto clientSocket = _sockets.fd_array[index];
 
-	char* cache = (char*)data.c_str();
 	if (data.length() > 65536)
 	{
 		sockaddr_in addr;
@@ -136,6 +134,14 @@ void MServer::writeToClient(std::string data, int index)
 	}
 	else
 	{
-		send(clientSocket, cache, strlen(cache), 0);
+		int length = data.length() + 1;
+		std::unique_ptr<char> cache(new char[sizeof(int) + length]);
+		memcpy(cache.get(), &length, sizeof(int));
+		memcpy(cache.get() + sizeof(int), data.c_str(), length - 1);
+		memcpy(cache.get() + sizeof(int) + length - 1, "\0", 1);
+		send(clientSocket, cache.get(), sizeof(int) + length, 0);
+		closesocket(clientSocket);
 	}
+
+
 }

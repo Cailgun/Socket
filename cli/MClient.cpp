@@ -36,12 +36,39 @@ SOCKET MClient::getClientSocket()
 std::string MClient::read()
 {
 	std::string ret;
-	if (_clientSocket == 0)
+	if (_clientSocket <= 0)
 		return ret;
 
-	char cache[1500] = { 0 };
-	recv(_clientSocket, cache, 1500, 0);
-	ret = cache;
+	char cache[4];
+	auto errCode = recv(_clientSocket, cache, 4, 0);
+	if (errCode > 0)
+	{
+		int remain = 0;
+		memcpy(&remain, cache, sizeof(int));
+
+		if (remain > 65536)
+		{
+			std::cout << std::endl << "数据量太大了，暂不做处理:" <<std::endl;
+		}
+		else
+		{
+			std::unique_ptr<char> pStr(new char[remain]);
+			int recvedLength = 0;
+			while (recvedLength < remain && errCode > 0)
+			{
+				int length = remain > 1500 ? 1500 : remain;
+				errCode = recv(_clientSocket, pStr.get() + recvedLength, length, 0);
+				recvedLength += length;
+			}
+			ret = pStr.get();
+		}
+	}
+	if (errCode <= 0)
+	{
+		std::cout << std::endl << "服务端已断开链接:" <<std::endl;
+		end();
+	}
+
 	return ret;
 }
 
@@ -65,7 +92,7 @@ void MClient::write(std::string data)
 void MClient::end()
 {
 	closesocket(_clientSocket);
-	//_clientSocket = 0;
+	_clientSocket = 0;
 	WSACleanup();
 }
 

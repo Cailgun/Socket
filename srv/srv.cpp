@@ -52,7 +52,7 @@ int main()
 		std::cin >> str;
 		s.writeToClient(str, index);
     }
-
+	WSACleanup();
     return 0;
 }
 

@@ -61,6 +61,10 @@ int main()
 		auto status = fu.wait_for(std::chrono::microseconds(100));
 		if (status == std::future_status::ready)
 			break;
+		if (c.getClientSocket() == 0)
+		{
+			break;
+		}
 		if (str == ":q")
 		{
 			c.end();
@@ -72,5 +76,6 @@ int main()
 			str = "";
 		}
 	}
+	getchar();
     return 0;
 }
