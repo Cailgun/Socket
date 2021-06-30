@@ -28,6 +28,11 @@ SOCKET MClient::createClientSocket()
 	return ret;
 }
 
+SOCKET MClient::getClientSocket()
+{
+	return _clientSocket;
+}
+
 std::string MClient::read()
 {
 	std::string ret;
@@ -42,8 +47,25 @@ std::string MClient::read()
 
 void MClient::write(std::string data)
 {
-	char* cache = (char*)data.c_str();
-	send(_clientSocket, cache, strlen(cache), 0);
+	int length = data.length() + 1;
+	std::unique_ptr<char> cache(new char[sizeof(int) + length]);
+	memcpy(cache.get(), &length, sizeof(int));
+	memcpy(cache.get() + sizeof(int), data.c_str(), length - 1);
+	memcpy(cache.get() + sizeof(int) + length - 1, "\0", 1);
+	if (data.length() > 65536)
+	{
+		std::cout << std::endl << "数据量太大了，暂不做处理:" << std::endl;
+	}
+	else
+	{
+		send(_clientSocket, cache.get(), sizeof(int) + length, 0);
+	}
 }
 
+void MClient::end()
+{
+	closesocket(_clientSocket);
+	//_clientSocket = 0;
+	WSACleanup();
+}
 

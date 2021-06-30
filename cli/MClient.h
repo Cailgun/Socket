@@ -14,8 +14,10 @@ public:
 
 	void init(int port = 4420, std::string ip = "127.0.0.1");
 	SOCKET createClientSocket();
+	SOCKET getClientSocket();
 	std::string read();
 	void write(std::string data);
+	void end();
 private:
 	SOCKET _clientSocket;
 	sockaddr_in _serverAddr;
